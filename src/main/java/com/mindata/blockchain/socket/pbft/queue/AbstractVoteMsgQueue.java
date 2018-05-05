@@ -33,7 +33,6 @@ public abstract class AbstractVoteMsgQueue extends BaseMsgQueue {
         List<VoteMsg> voteMsgs = voteMsgConcurrentHashMap.get(hash);
         if (CollectionUtil.isEmpty(voteMsgs)) {
             voteMsgs = new ArrayList<>();
-            voteMsgs.add(voteMsg);
             voteMsgConcurrentHashMap.put(hash, voteMsgs);
         } else {
             //如果不空的情况下，判断本地集合是否已经存在完全相同的voteMsg了
