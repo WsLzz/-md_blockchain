@@ -35,13 +35,15 @@ public abstract class AbstractVoteMsgQueue extends BaseMsgQueue {
             voteMsgs = new ArrayList<>();
             voteMsgs.add(voteMsg);
             voteMsgConcurrentHashMap.put(hash, voteMsgs);
-        }
-        //判断本地集合是否已经存在完全相同的voteMsg了
-        for (VoteMsg temp : voteMsgs) {
-            if (temp.getNumber() == voteMsg.getNumber() && temp.getAppId().equals(voteMsg.getAppId())) {
-                return;
+        } else {
+            //如果不空的情况下，判断本地集合是否已经存在完全相同的voteMsg了
+            for (VoteMsg temp : voteMsgs) {
+                if (temp.getNumber() == voteMsg.getNumber() && temp.getAppId().equals(voteMsg.getAppId())) {
+                    return;
+                }
             }
         }
+
         //添加进去
         voteMsgs.add(voteMsg);
         //如果我已经对该hash的commit投过票了，就不再继续

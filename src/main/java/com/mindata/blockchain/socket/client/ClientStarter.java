@@ -168,7 +168,7 @@ public class ClientStarter {
         try {
             AioClient aioClient = new AioClient(clientGroupContext);
             logger.info("开始绑定" + ":" + serverNode.toString());
-            ClientChannelContext clientChannelContext = aioClient.connect(serverNode, 1);
+            ClientChannelContext clientChannelContext = aioClient.connect(serverNode, 2);
             if (clientChannelContext == null) {
                 logger.info("绑定" + serverNode.toString() + "失败");
                 return;
@@ -197,6 +197,7 @@ public class ClientStarter {
         if (pbft <= 0) {
             pbft = 1;
         }
+        //如果要单节点测试，此处返回值改为0
         return pbft;
     }
 
