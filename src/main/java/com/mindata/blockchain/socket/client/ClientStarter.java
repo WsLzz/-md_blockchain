@@ -121,6 +121,16 @@ public class ClientStarter {
 
     }
 
+    /**
+     * 每30秒群发一次消息，和别人对比最新的Block
+     */
+    @Scheduled(fixedRate = 30000)
+    public void heartBeat() {
+        logger.info("---------开始心跳包--------");
+        BlockPacket blockPacket = NextBlockPacketBuilder.build();
+        packetSender.sendGroup(blockPacket);
+    }
+
     @EventListener(ApplicationReadyEvent.class)
     public void fetchNextBlock() throws InterruptedException {
         Thread.sleep(6000);
