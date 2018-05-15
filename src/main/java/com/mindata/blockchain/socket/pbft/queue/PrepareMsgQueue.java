@@ -75,8 +75,6 @@ public class PrepareMsgQueue extends AbstractVoteMsgQueue {
         voteStateConcurrentHashMap.put(commitMsg.getHash(), flag);
     }
 
-
-
     /**
      * 判断大家是否已对其他的Block达成共识，如果true，则拒绝即将进入队列的Block
      *

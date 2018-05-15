@@ -54,21 +54,25 @@ public abstract class AbstractVoteMsgQueue extends BaseMsgQueue {
     }
 
     /**
-     * 校验队列中是否存在number相同，hash不同，且被同意数量已经超过过2f+1的记录
+     * 该方法用来确认待push阶段的下一阶段是否已存在已达成共识的Block <p>
+     * 譬如收到了区块5的Prepare的投票信息，那么我是否接受该投票，需要先校验Commit阶段是否已经存在number>=5的投票成功信息
      *
      * @param hash
      *         hash
      * @return 是否超过
      */
     public boolean hasOtherConfirm(String hash, int number) {
+        //遍历该阶段的所有投票信息
         for (String key : voteMsgConcurrentHashMap.keySet()) {
+            //如果下一阶段存在同一个hash的投票，则不理会
             if (hash.equals(key)) {
                 continue;
             }
+            //如果下一阶段的number比当前投票的小，则不理会
             if (voteMsgConcurrentHashMap.get(key).get(0).getNumber() < number) {
                 continue;
             }
-            //如果有别的>=number的Block已经达成共识了，则返回true
+            //只有别的>=number的Block已经达成共识了，则返回true，那么将会拒绝该hash进入下一阶段
             if (voteStateConcurrentHashMap.get(key) != null && voteStateConcurrentHashMap.get(key)) {
                 return true;
             }
