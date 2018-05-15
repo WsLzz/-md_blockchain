@@ -37,7 +37,7 @@ public abstract class AbstractVoteMsgQueue extends BaseMsgQueue {
         } else {
             //如果不空的情况下，判断本地集合是否已经存在完全相同的voteMsg了
             for (VoteMsg temp : voteMsgs) {
-                if (temp.getNumber() == voteMsg.getNumber() && temp.getAppId().equals(voteMsg.getAppId())) {
+                if (temp.getAppId().equals(voteMsg.getAppId())) {
                     return;
                 }
             }
