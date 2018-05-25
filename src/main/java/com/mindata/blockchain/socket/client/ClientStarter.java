@@ -66,6 +66,7 @@ public class ClientStarter {
     @Scheduled(fixedRate = 300000)
     public void fetchOtherServer() {
         String localIp = CommonUtil.getLocalIp();
+        logger.info("本机IP：{}",localIp);
         try {
             //如果连不上服务器，就不让启动
             MemberData memberData = restTemplate.getForEntity(managerUrl + "member?name=" + name + "&appId=" + AppId
@@ -208,7 +209,8 @@ public class ClientStarter {
             pbft = 1;
         }
         //如果要单节点测试，此处返回值改为0
-        return pbft;
+        //return pbft;
+        return 0;
     }
 
     public int pbftAgreeCount() {

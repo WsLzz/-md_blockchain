@@ -21,7 +21,7 @@ public class CommonUtil {
     public static String getLocalIp() {
         InetAddress inetAddress = getLocalHostLANAddress();
         if (inetAddress != null) {
-            return inetAddress.getHostName();
+            return inetAddress.getHostAddress();
         }
         return null;
     }
