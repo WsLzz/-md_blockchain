@@ -10,9 +10,9 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class MsgQueueManager {
-    private BaseMsgQueue baseMsgQueue;
 
     public void pushMsg(VoteMsg voteMsg) {
+    	BaseMsgQueue baseMsgQueue = null;
         switch (voteMsg.getVoteType()) {
             case VoteType
                     .PREPREPARE:
@@ -27,7 +27,8 @@ public class MsgQueueManager {
             default:
                 break;
         }
-
-        baseMsgQueue.push(voteMsg);
+        if(baseMsgQueue != null) {
+        	baseMsgQueue.push(voteMsg);
+        }
     }
 }
