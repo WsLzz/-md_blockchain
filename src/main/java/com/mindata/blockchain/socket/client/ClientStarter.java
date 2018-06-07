@@ -209,7 +209,7 @@ public class ClientStarter {
             pbft = 1;
         }
         //如果要单节点测试，此处返回值改为0
-        return 0;
+        return pbft;
     }
 
     public int pbftAgreeCount() {

@@ -24,7 +24,7 @@ public class CheckerManager {
     	int code= blockChecker.checkSign(block);
     	if (code != 0) {
             return new RpcCheckBlockBody(-1, "block的签名不合法");
-       }
+        }
     	
         int number = blockChecker.checkNum(block);
         if (number != 0) {
