@@ -10,6 +10,8 @@ import com.mindata.blockchain.socket.body.RpcCheckBlockBody;
 import com.mindata.blockchain.socket.client.PacketSender;
 import com.mindata.blockchain.socket.packet.BlockPacket;
 import com.mindata.blockchain.socket.packet.NextBlockPacketBuilder;
+import com.mindata.blockchain.socket.pbft.queue.NextBlockQueue;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.core.ChannelContext;
@@ -38,6 +40,8 @@ public class FetchBlockResponseHandler extends AbstractBlockHandler<RpcBlockBody
             logger.info("对方也没有该Block");
         } else {
             //此处校验传过来的block的合法性，如果合法，则更新到本地，作为next区块
+        	if(ApplicationContextProvider.getBean(NextBlockQueue.class).pop(block.getHash()) == null) return null;
+        	
             CheckerManager checkerManager = ApplicationContextProvider.getBean(CheckerManager.class);
             RpcCheckBlockBody rpcCheckBlockBody = checkerManager.check(block);
             //校验通过，则存入本地DB，保存新区块

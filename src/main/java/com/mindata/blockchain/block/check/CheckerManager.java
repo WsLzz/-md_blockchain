@@ -21,6 +21,11 @@ public class CheckerManager {
      * @return 校验结果
      */
     public RpcCheckBlockBody check(Block block) {
+    	int code= blockChecker.checkSign(block);
+    	if (code != 0) {
+            return new RpcCheckBlockBody(-1, "block的签名不合法");
+       }
+    	
         int number = blockChecker.checkNum(block);
         if (number != 0) {
              return new RpcCheckBlockBody(-1, "block的number不合法");

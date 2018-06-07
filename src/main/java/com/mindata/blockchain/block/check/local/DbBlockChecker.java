@@ -74,6 +74,14 @@ public class DbBlockChecker implements BlockChecker {
         }
         return 0;
     }
+    
+    @Override
+    public int checkSign(Block block) {
+    	if(!checkBlockHashSign(block)) {
+    		return -1;
+    	}
+    	return 0;
+    }
 
     private Block getLastBlock() {
         return dbBlockManager.getLastBlock();
