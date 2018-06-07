@@ -1,10 +1,20 @@
 package com.mindata.blockchain.core.controller;
 
-import cn.hutool.core.collection.CollectionUtil;
+import javax.annotation.Resource;
+
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.mindata.blockchain.ApplicationContextProvider;
 import com.mindata.blockchain.block.Block;
 import com.mindata.blockchain.block.Instruction;
 import com.mindata.blockchain.block.Operation;
+import com.mindata.blockchain.block.check.BlockChecker;
 import com.mindata.blockchain.common.exception.TrustSDKException;
 import com.mindata.blockchain.core.bean.BaseData;
 import com.mindata.blockchain.core.bean.ResultGenerator;
@@ -21,11 +31,8 @@ import com.mindata.blockchain.socket.client.PacketSender;
 import com.mindata.blockchain.socket.packet.BlockPacket;
 import com.mindata.blockchain.socket.packet.PacketBuilder;
 import com.mindata.blockchain.socket.packet.PacketType;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
-import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
+import cn.hutool.core.collection.CollectionUtil;
 
 /**
  * @author wuweifeng wrote on 2018/3/7.
@@ -45,6 +52,8 @@ public class BlockController {
     private SyncManager syncManager;
     @Resource
     private MessageManager messageManager;
+    @Resource
+    private BlockChecker blockChecker;
 
     /**
      * 添加一个block，需要先在InstructionController构建1-N个instruction指令，然后调用该接口生成Block
@@ -55,8 +64,9 @@ public class BlockController {
      */
     @PostMapping
     public BaseData add(@RequestBody BlockRequestBody blockRequestBody) throws TrustSDKException {
-        if (blockService.check(blockRequestBody) != null) {
-            return ResultGenerator.genFailResult(blockService.check(blockRequestBody));
+    	String msg = blockService.check(blockRequestBody);
+        if (msg != null) {
+            return ResultGenerator.genFailResult(msg);
         }
         return ResultGenerator.genSuccessResult(blockService.addBlock(blockRequestBody));
     }
@@ -121,6 +131,25 @@ public class BlockController {
     public BaseData sync(@PageableDefault Pageable pageable) {
         ApplicationContextProvider.publishEvent(new DbSyncEvent(""));
         return ResultGenerator.genSuccessResult(syncManager.findAll(pageable));
+    }
+    
+    /**
+     * 全量检测区块是否正常
+     * @return
+     * null - 通过
+     * hash - 第一个异常hash
+     */
+    @GetMapping("checkb")
+    public BaseData checkAllBlock() {
+    	
+    	Block block = dbBlockManager.getFirstBlock();
+    	
+    	String hash = null;
+    	while(block != null && hash == null) {
+    		hash = blockChecker.checkBlock(block);
+    		block = dbBlockManager.getNextBlock(block);
+    	}
+    	return ResultGenerator.genSuccessResult(hash);
     }
 
     @GetMapping("/next")

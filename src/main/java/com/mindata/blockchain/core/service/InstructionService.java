@@ -60,14 +60,19 @@ public class InstructionService {
             instruction.setInstructionId(CommonUtil.generateUuid());
         }
         instruction.setTimeStamp(CommonUtil.getNow());
-        String buildStr = instructionBody.getOperation() + instructionBody.getTable() + instructionBody
-                .getInstructionId() + instructionBody.getJson() + instructionBody.getOldJson();
+        String buildStr = getSignString(instruction);
         //设置签名，供其他人验证
         instruction.setSign(TrustSDK.signString(instructionBody.getPrivateKey(), buildStr));
         //设置hash，防止篡改
         instruction.setHash(Sha256.sha256(buildStr));
 
         return instruction;
+    }
+    
+    private String getSignString(Instruction instruction) {
+    	return instruction.getOperation() + instruction.getTable() + instruction
+    			.getInstructionId() + (instruction.getJson()==null?"":instruction.getJson())
+    			+ (instruction.getOldJson()==null?"":instruction.getOldJson());
     }
 
     /**
@@ -95,14 +100,12 @@ public class InstructionService {
     }
 
     public boolean checkSign(Instruction instruction) throws TrustSDKException {
-        String buildStr = instruction.getOperation() +
-                instruction.getTable() + instruction.getJson();
+        String buildStr = getSignString(instruction);
         return TrustSDK.verifyString(instruction.getPublicKey(), buildStr, instruction.getSign());
     }
 
     public boolean checkHash(Instruction instruction) {
-        String buildStr = instruction.getOperation() +
-                instruction.getTable() + instruction.getJson();
+        String buildStr = getSignString(instruction);
         return Sha256.sha256(buildStr).equals(instruction.getHash());
     }
 }

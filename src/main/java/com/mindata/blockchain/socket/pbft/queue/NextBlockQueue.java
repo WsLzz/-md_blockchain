@@ -1,6 +1,8 @@
 package com.mindata.blockchain.socket.pbft.queue;
 
 import cn.hutool.core.util.StrUtil;
+
+import com.google.common.collect.Lists;
 import com.mindata.blockchain.core.manager.DbBlockManager;
 import com.mindata.blockchain.socket.body.BlockHash;
 import com.mindata.blockchain.socket.body.RpcSimpleBlockBody;
@@ -38,6 +40,18 @@ public class NextBlockQueue {
      * prevHash->hash，记录上一区块hash和hash的映射
      */
     private ConcurrentHashMap<String, List<BlockHash>> requestMap = new ConcurrentHashMap<>();
+    
+    /**
+     * 保存已经通过的区块hash,用于后面校验落地区块
+     */
+    private List<String> wantHashs = Lists.newCopyOnWriteArrayList();
+    
+    public String pop(String hash) {
+    	if(wantHashs.remove(hash)) {
+    		return hash;
+    	}
+    	return null;
+    }
 
     public List<BlockHash> get(String key) {
         return requestMap.get(key);
@@ -133,6 +147,7 @@ public class NextBlockQueue {
         //判断数量是否过线
         if (maxCount >= agreeCount - 1) {
             logger.info("共有<" + maxCount + ">个节点返回next block hash为" + wantHash);
+            wantHashs.add(wantHash);
             //请求拉取该hash的Block
             BlockPacket blockPacket = new PacketBuilder<RpcSimpleBlockBody>().setType(PacketType
                     .FETCH_BLOCK_INFO_REQUEST).setBody(new RpcSimpleBlockBody(wantHash)).build();
