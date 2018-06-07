@@ -3,8 +3,13 @@ package com.mindata.blockchain.block.check.local;
 import cn.hutool.core.util.StrUtil;
 import com.mindata.blockchain.block.Block;
 import com.mindata.blockchain.block.check.BlockChecker;
+import com.mindata.blockchain.common.Sha256;
+import com.mindata.blockchain.common.exception.TrustSDKException;
 import com.mindata.blockchain.core.manager.DbBlockManager;
 import com.mindata.blockchain.core.manager.PermissionManager;
+import com.mindata.blockchain.core.requestbody.BlockRequestBody;
+import com.mindata.blockchain.core.service.BlockService;
+
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -19,6 +24,9 @@ public class DbBlockChecker implements BlockChecker {
     private DbBlockManager dbBlockManager;
     @Resource
     private PermissionManager permissionManager;
+    
+    @Resource
+    private BlockService blockService;
 
     @Override
     public int checkNum(Block block) {
@@ -70,4 +78,48 @@ public class DbBlockChecker implements BlockChecker {
     private Block getLastBlock() {
         return dbBlockManager.getLastBlock();
     }
+    
+    public String checkBlock(Block block) {
+    	if(!checkBlockHashSign(block)) return block.getHash();
+    	
+    	String preHash = block.getBlockHeader().getHashPreviousBlock();
+    	if(preHash == null) return null;
+    	
+    	Block preBlock = dbBlockManager.getBlockByHash(preHash);
+    	if(preBlock == null) return block.getHash();
+    	
+		int localNum = preBlock.getBlockHeader().getNumber();
+        //当前区块+1等于下一个区块时才同意
+        if (localNum + 1 != block.getBlockHeader().getNumber()) {
+            return block.getHash();
+        }
+        if(block.getBlockHeader().getTimeStamp() <= preBlock.getBlockHeader().getTimeStamp()) {
+        	return block.getHash();
+        }
+    	
+    		
+    	return null;
+    }
+
+    /**
+     * 检测区块签名及hash是否符合
+     * @param block
+     * @return
+     */
+	private boolean checkBlockHashSign(Block block) {
+		BlockRequestBody blockRequestBody = new BlockRequestBody();
+		blockRequestBody.setBlockBody(block.getBlockBody());
+		blockRequestBody.setPublicKey(block.getBlockHeader().getPublicKey());
+		try {
+			if(blockService.check(blockRequestBody) != null) return false;
+		} catch (TrustSDKException e) {
+			return false;
+		}
+		
+		String hash = Sha256.sha256(block.getBlockHeader().toString() + block.getBlockBody().toString());
+		if(!StrUtil.equals(block.getHash(),hash)) return false;
+		
+		return true;
+	}
+    
 }

@@ -40,4 +40,12 @@ public interface BlockChecker {
      * @return block
      */
     int checkTime(Block block);
+    
+    /**
+     * 校验block，包括签名、hash、关联关系
+     * @param block
+     * @return
+     */
+    public String checkBlock(Block block);
+    
 }
