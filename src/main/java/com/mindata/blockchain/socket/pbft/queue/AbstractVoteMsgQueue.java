@@ -1,6 +1,8 @@
 package com.mindata.blockchain.socket.pbft.queue;
 
 import cn.hutool.core.collection.CollectionUtil;
+
+import com.mindata.blockchain.common.TimerManager;
 import com.mindata.blockchain.socket.pbft.msg.VoteMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,12 +86,7 @@ public abstract class AbstractVoteMsgQueue extends BaseMsgQueue {
      * 清理旧的block的hash
      */
     protected void clearOldBlockHash(int number) {
-        CompletableFuture.supplyAsync(() -> {
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+    	TimerManager.schedule(() -> {
             for (String key : voteMsgConcurrentHashMap.keySet()) {
                 if (voteMsgConcurrentHashMap.get(key).get(0).getNumber() <= number) {
                     voteMsgConcurrentHashMap.remove(key);
@@ -97,6 +94,6 @@ public abstract class AbstractVoteMsgQueue extends BaseMsgQueue {
                 }
             }
             return null;
-        });
+        },2000);
     }
 }

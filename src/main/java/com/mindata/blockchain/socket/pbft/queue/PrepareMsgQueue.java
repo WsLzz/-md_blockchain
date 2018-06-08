@@ -71,8 +71,8 @@ public class PrepareMsgQueue extends AbstractVoteMsgQueue {
         logger.info("Prepare阶段完毕，是否进入commit的标志是：" + flag);
         //发出拒绝commit的消息
         commitMsg.setAgree(flag);
-        eventPublisher.publishEvent(new MsgCommitEvent(commitMsg));
         voteStateConcurrentHashMap.put(commitMsg.getHash(), flag);
+        eventPublisher.publishEvent(new MsgCommitEvent(commitMsg));
     }
 
     /**

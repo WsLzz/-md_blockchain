@@ -1,10 +1,9 @@
 package com.mindata.blockchain.socket.pbft.queue;
 
-import com.mindata.blockchain.block.Block;
-import com.mindata.blockchain.core.event.AddBlockEvent;
-import com.mindata.blockchain.socket.pbft.event.MsgPrepareEvent;
-import com.mindata.blockchain.socket.pbft.msg.VoteMsg;
-import com.mindata.blockchain.socket.pbft.msg.VotePreMsg;
+import java.util.concurrent.ConcurrentHashMap;
+
+import javax.annotation.Resource;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
@@ -12,9 +11,16 @@ import org.springframework.context.event.EventListener;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
+import com.mindata.blockchain.block.Block;
+import com.mindata.blockchain.common.AppId;
+import com.mindata.blockchain.common.TimerManager;
+import com.mindata.blockchain.core.event.AddBlockEvent;
+import com.mindata.blockchain.socket.pbft.VoteType;
+import com.mindata.blockchain.socket.pbft.event.MsgPrepareEvent;
+import com.mindata.blockchain.socket.pbft.msg.VoteMsg;
+import com.mindata.blockchain.socket.pbft.msg.VotePreMsg;
+
+import cn.hutool.core.bean.BeanUtil;
 
 /**
  * preprepare消息的存储，但凡收到请求生成Block的信息，都在这里处理
@@ -51,6 +57,10 @@ public class PreMsgQueue extends BaseMsgQueue {
         blockConcurrentHashMap.put(hash, votePreMsg);
 
         //加入Prepare行列，推送给所有人
+        VoteMsg prepareMsg = new VoteMsg();
+        BeanUtil.copyProperties(voteMsg, prepareMsg);
+        prepareMsg.setVoteType(VoteType.PREPARE);
+        prepareMsg.setAppId(AppId.value);
         eventPublisher.publishEvent(new MsgPrepareEvent(voteMsg));
     }
 
@@ -77,18 +87,13 @@ public class PreMsgQueue extends BaseMsgQueue {
     public void blockGenerated(AddBlockEvent addBlockEvent) {
         Block block = (Block) addBlockEvent.getSource();
         int number = block.getBlockHeader().getNumber();
-        CompletableFuture.supplyAsync(() -> {
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+        TimerManager.schedule(() -> {
             for (String key : blockConcurrentHashMap.keySet()) {
                 if (blockConcurrentHashMap.get(key).getNumber() <= number) {
                     blockConcurrentHashMap.remove(key);
                 }
             }
             return null;
-        });
+        },2000);
     }
 }
