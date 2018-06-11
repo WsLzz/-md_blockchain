@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 
 import com.mindata.blockchain.block.Block;
 import com.mindata.blockchain.common.AppId;
-import com.mindata.blockchain.common.TimerManager;
+import com.mindata.blockchain.common.timer.TimerManager;
 import com.mindata.blockchain.core.event.AddBlockEvent;
 import com.mindata.blockchain.socket.pbft.VoteType;
 import com.mindata.blockchain.socket.pbft.event.MsgPrepareEvent;

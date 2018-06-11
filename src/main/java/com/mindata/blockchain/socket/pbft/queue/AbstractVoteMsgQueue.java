@@ -1,16 +1,16 @@
 package com.mindata.blockchain.socket.pbft.queue;
 
-import cn.hutool.core.collection.CollectionUtil;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
-import com.mindata.blockchain.common.TimerManager;
-import com.mindata.blockchain.socket.pbft.msg.VoteMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
+import com.mindata.blockchain.common.timer.TimerManager;
+import com.mindata.blockchain.socket.pbft.msg.VoteMsg;
+
+import cn.hutool.core.collection.CollectionUtil;
 
 /**
  * @author wuweifeng wrote on 2018/4/26.
