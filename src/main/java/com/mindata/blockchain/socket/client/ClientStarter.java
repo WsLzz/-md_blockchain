@@ -54,7 +54,7 @@ public class ClientStarter {
     private String appId;
     @Value("${name}")
     private String name;
-    @Value("${singeNode}")
+    @Value("${singeNode:false}")
     private Boolean singeNode;
 
     private Logger logger = LoggerFactory.getLogger(getClass());
