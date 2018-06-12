@@ -1,14 +1,16 @@
 package com.mindata.blockchain.socket.pbft.queue;
 
-import cn.hutool.core.collection.CollectionUtil;
-import com.mindata.blockchain.socket.pbft.msg.VoteMsg;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
+import com.mindata.blockchain.common.timer.TimerManager;
+import com.mindata.blockchain.socket.pbft.msg.VoteMsg;
+
+import cn.hutool.core.collection.CollectionUtil;
 
 /**
  * @author wuweifeng wrote on 2018/4/26.
@@ -45,7 +47,7 @@ public abstract class AbstractVoteMsgQueue extends BaseMsgQueue {
 
         //添加进去
         voteMsgs.add(voteMsg);
-        //如果我已经对该hash的commit投过票了，就不再继续
+        //如果已经对该hash投过票了，就不再继续
         if (voteStateConcurrentHashMap.get(hash) != null) {
             return;
         }
@@ -84,12 +86,7 @@ public abstract class AbstractVoteMsgQueue extends BaseMsgQueue {
      * 清理旧的block的hash
      */
     protected void clearOldBlockHash(int number) {
-        CompletableFuture.supplyAsync(() -> {
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+    	TimerManager.schedule(() -> {
             for (String key : voteMsgConcurrentHashMap.keySet()) {
                 if (voteMsgConcurrentHashMap.get(key).get(0).getNumber() <= number) {
                     voteMsgConcurrentHashMap.remove(key);
@@ -97,6 +94,6 @@ public abstract class AbstractVoteMsgQueue extends BaseMsgQueue {
                 }
             }
             return null;
-        });
+        },2000);
     }
 }

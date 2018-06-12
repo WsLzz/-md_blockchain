@@ -1,5 +1,7 @@
 package com.mindata.blockchain.core.repository;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import com.mindata.blockchain.core.model.MessageEntity;
 
 /**
@@ -10,6 +12,7 @@ public interface MessageRepository extends BaseRepository<MessageEntity> {
      * 删除一条记录
      * @param messageId  messageId
      */
+	@Transactional
     void deleteByMessageId(String messageId);
 
     /**

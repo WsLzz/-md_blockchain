@@ -71,8 +71,7 @@ public class InstructionService {
     
     private String getSignString(Instruction instruction) {
     	return instruction.getOperation() + instruction.getTable() + instruction
-    			.getInstructionId() + (instruction.getJson()==null?"":instruction.getJson())
-    			+ (instruction.getOldJson()==null?"":instruction.getOldJson());
+    			.getInstructionId() + (instruction.getJson()==null?"":instruction.getJson());
     }
 
     /**

@@ -1,17 +1,19 @@
 package com.mindata.blockchain.socket.pbft.queue;
 
-import com.mindata.blockchain.ApplicationContextProvider;
-import com.mindata.blockchain.block.Block;
-import com.mindata.blockchain.core.event.AddBlockEvent;
-import com.mindata.blockchain.socket.pbft.msg.VoteMsg;
+import java.util.List;
+
+import javax.annotation.Resource;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
-import java.util.List;
+import com.mindata.blockchain.ApplicationContextProvider;
+import com.mindata.blockchain.block.Block;
+import com.mindata.blockchain.core.event.AddBlockEvent;
+import com.mindata.blockchain.socket.pbft.msg.VoteMsg;
 
 /**
  * Confirm阶段的消息队列
@@ -29,11 +31,6 @@ public class CommitMsgQueue extends AbstractVoteMsgQueue {
     @Override
     protected void deal(VoteMsg voteMsg, List<VoteMsg> voteMsgs) {
         String hash = voteMsg.getHash();
-
-        //如果已经落地过了
-        if (voteStateConcurrentHashMap.get(hash) != null) {
-            return;
-        }
 
         //通过校验agree数量，来决定是否在本地生成Block
         long count = voteMsgs.stream().filter(VoteMsg::isAgree).count();

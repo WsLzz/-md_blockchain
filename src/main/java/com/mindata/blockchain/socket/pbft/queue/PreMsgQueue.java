@@ -1,10 +1,9 @@
 package com.mindata.blockchain.socket.pbft.queue;
 
-import com.mindata.blockchain.block.Block;
-import com.mindata.blockchain.core.event.AddBlockEvent;
-import com.mindata.blockchain.socket.pbft.event.MsgPrepareEvent;
-import com.mindata.blockchain.socket.pbft.msg.VoteMsg;
-import com.mindata.blockchain.socket.pbft.msg.VotePreMsg;
+import java.util.concurrent.ConcurrentHashMap;
+
+import javax.annotation.Resource;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
@@ -12,9 +11,17 @@ import org.springframework.context.event.EventListener;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
+import com.mindata.blockchain.block.Block;
+import com.mindata.blockchain.common.AppId;
+import com.mindata.blockchain.common.timer.TimerManager;
+import com.mindata.blockchain.core.event.AddBlockEvent;
+import com.mindata.blockchain.core.sqlite.SqliteManager;
+import com.mindata.blockchain.socket.pbft.VoteType;
+import com.mindata.blockchain.socket.pbft.event.MsgPrepareEvent;
+import com.mindata.blockchain.socket.pbft.msg.VoteMsg;
+import com.mindata.blockchain.socket.pbft.msg.VotePreMsg;
+
+import cn.hutool.core.bean.BeanUtil;
 
 /**
  * preprepare消息的存储，但凡收到请求生成Block的信息，都在这里处理
@@ -23,6 +30,8 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Component
 public class PreMsgQueue extends BaseMsgQueue {
+    @Resource
+    private SqliteManager sqliteManager;
     @Resource
     private PrepareMsgQueue prepareMsgQueue;
     @Resource
@@ -47,11 +56,27 @@ public class PreMsgQueue extends BaseMsgQueue {
             logger.info("拒绝进入Prepare阶段，hash为" + hash);
             return;
         }
+        // 检测脚本是否正常
+        try {
+			sqliteManager.tryExecute(votePreMsg.getBlock());
+		} catch (Exception e) {
+			if(!"00001".equals(e.getMessage())){
+				// 执行异常
+				return;
+			}else{
+				logger.info("指令预校验执行成功！");
+			}
+		}
+        
         //存入Pre集合中
         blockConcurrentHashMap.put(hash, votePreMsg);
 
         //加入Prepare行列，推送给所有人
-        eventPublisher.publishEvent(new MsgPrepareEvent(voteMsg));
+        VoteMsg prepareMsg = new VoteMsg();
+        BeanUtil.copyProperties(voteMsg, prepareMsg);
+        prepareMsg.setVoteType(VoteType.PREPARE);
+        prepareMsg.setAppId(AppId.value);
+        eventPublisher.publishEvent(new MsgPrepareEvent(prepareMsg));
     }
 
     /**
@@ -77,18 +102,13 @@ public class PreMsgQueue extends BaseMsgQueue {
     public void blockGenerated(AddBlockEvent addBlockEvent) {
         Block block = (Block) addBlockEvent.getSource();
         int number = block.getBlockHeader().getNumber();
-        CompletableFuture.supplyAsync(() -> {
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+        TimerManager.schedule(() -> {
             for (String key : blockConcurrentHashMap.keySet()) {
                 if (blockConcurrentHashMap.get(key).getNumber() <= number) {
                     blockConcurrentHashMap.remove(key);
                 }
             }
             return null;
-        });
+        },2000);
     }
 }

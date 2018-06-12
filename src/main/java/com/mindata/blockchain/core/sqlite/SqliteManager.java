@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -93,7 +94,7 @@ public class SqliteManager {
      * @param block
      *         block
      */
-    private void rollBack(Block block) {
+    public void rollBack(Block block) {
         List<Instruction> instructions = block.getBlockBody().getInstructions();
         int size = instructions.size();
         //需要对语句集合进行反转，然后执行和execute一样的操作
@@ -108,5 +109,17 @@ public class SqliteManager {
         for (InstructionBase instruction : instructions) {
             instructionParser.parse(instruction);
         }
+    }
+    
+    /**
+     * 测试block的代码是否能正确执行
+     * 
+     * @param block
+     * @throws Exception msg=00001 则说明是正常执行
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void tryExecute(Block block) throws Exception{
+    	execute(block);
+    	throw new Exception("00001");
     }
 }

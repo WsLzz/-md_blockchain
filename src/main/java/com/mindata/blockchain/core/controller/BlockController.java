@@ -2,6 +2,7 @@ package com.mindata.blockchain.core.controller;
 
 import javax.annotation.Resource;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -72,7 +73,7 @@ public class BlockController {
     }
 
     /**
-     * 测试生成一个Block，公钥私钥可以通过PairKeyController来生成
+     * 测试生成一个insert:Block，公钥私钥可以通过PairKeyController来生成
      * @param content
      * sql内容
      */
@@ -87,13 +88,67 @@ public class BlockController {
         Instruction instruction = instructionService.build(instructionBody);
 
         BlockRequestBody blockRequestBody = new BlockRequestBody();
-        blockRequestBody.setPublicKey("A8WLqHTjcT/FQ2IWhIePNShUEcdCzu5dG+XrQU8OMu54");
+        blockRequestBody.setPublicKey(instructionBody.getPublicKey());
         com.mindata.blockchain.block.BlockBody blockBody = new com.mindata.blockchain.block.BlockBody();
         blockBody.setInstructions(CollectionUtil.newArrayList(instruction));
 
-       blockRequestBody.setBlockBody(blockBody);
+        blockRequestBody.setBlockBody(blockBody);
 
         return ResultGenerator.genSuccessResult(blockService.addBlock(blockRequestBody));
+    }
+    
+    /**
+     * 测试生成一个update:Block，公钥私钥可以通过PairKeyController来生成
+     * @param id 更新的主键
+     * @param content
+     * sql内容
+     */
+    @GetMapping("testUpdate")
+    public BaseData testUpdate(String id,String content) throws Exception {
+    	if(StringUtils.isBlank(id)) ResultGenerator.genSuccessResult("主键不可为空");
+    	InstructionBody instructionBody = new InstructionBody();
+    	instructionBody.setOperation(Operation.UPDATE);
+    	instructionBody.setTable("message");
+    	instructionBody.setInstructionId(id);
+    	instructionBody.setJson("{\"content\":\"" + content + "\"}");
+    	instructionBody.setPublicKey("A8WLqHTjcT/FQ2IWhIePNShUEcdCzu5dG+XrQU8OMu54");
+    	instructionBody.setPrivateKey("yScdp6fNgUU+cRUTygvJG4EBhDKmOMRrK4XJ9mKVQJ8=");
+    	Instruction instruction = instructionService.build(instructionBody);
+    	
+    	BlockRequestBody blockRequestBody = new BlockRequestBody();
+    	blockRequestBody.setPublicKey(instructionBody.getPublicKey());
+    	com.mindata.blockchain.block.BlockBody blockBody = new com.mindata.blockchain.block.BlockBody();
+    	blockBody.setInstructions(CollectionUtil.newArrayList(instruction));
+    	
+    	blockRequestBody.setBlockBody(blockBody);
+    	
+    	return ResultGenerator.genSuccessResult(blockService.addBlock(blockRequestBody));
+    }
+    
+    /**
+     * 测试生成一个delete:Block，公钥私钥可以通过PairKeyController来生成
+     * @param id 待删除记录的主键
+     * sql内容
+     */
+    @GetMapping("testDel")
+    public BaseData testDel(String id) throws Exception {
+    	if(StringUtils.isBlank(id)) ResultGenerator.genSuccessResult("主键不可为空");
+    	InstructionBody instructionBody = new InstructionBody();
+    	instructionBody.setOperation(Operation.DELETE);
+    	instructionBody.setTable("message");
+    	instructionBody.setInstructionId(id);
+    	instructionBody.setPublicKey("A8WLqHTjcT/FQ2IWhIePNShUEcdCzu5dG+XrQU8OMu54");
+    	instructionBody.setPrivateKey("yScdp6fNgUU+cRUTygvJG4EBhDKmOMRrK4XJ9mKVQJ8=");
+    	Instruction instruction = instructionService.build(instructionBody);
+    	
+    	BlockRequestBody blockRequestBody = new BlockRequestBody();
+    	blockRequestBody.setPublicKey(instructionBody.getPublicKey());
+    	com.mindata.blockchain.block.BlockBody blockBody = new com.mindata.blockchain.block.BlockBody();
+    	blockBody.setInstructions(CollectionUtil.newArrayList(instruction));
+    	
+    	blockRequestBody.setBlockBody(blockBody);
+    	
+    	return ResultGenerator.genSuccessResult(blockService.addBlock(blockRequestBody));
     }
 
     /**
