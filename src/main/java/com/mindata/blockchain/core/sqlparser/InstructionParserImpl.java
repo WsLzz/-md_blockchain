@@ -1,12 +1,14 @@
 package com.mindata.blockchain.core.sqlparser;
 
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+
+import com.mindata.blockchain.block.Instruction;
 import com.mindata.blockchain.block.InstructionBase;
 import com.mindata.blockchain.common.FastJsonUtil;
 import com.mindata.blockchain.core.model.base.BaseEntity;
 import com.mindata.blockchain.core.model.convert.ConvertTableName;
-import org.springframework.stereotype.Service;
-
-import javax.annotation.Resource;
 
 /**
  * 将区块内指令解析并入库
@@ -29,6 +31,9 @@ public class InstructionParserImpl<T extends BaseEntity> implements InstructionP
         T object = FastJsonUtil.toBean(json, clazz);
         for (AbstractSqlParser<T> sqlParser : sqlParsers) {
             if (clazz.equals(sqlParser.getEntityClass())) {
+            	if(instructionBase instanceof Instruction){
+            		object.setPublicKey(((Instruction)instructionBase).getPublicKey());
+            	}
                 sqlParser.parse(operation, instructionBase.getInstructionId(), object);
                 break;
             }
