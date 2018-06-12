@@ -39,11 +39,6 @@ public class PrepareMsgQueue extends AbstractVoteMsgQueue {
     @Override
     protected void deal(VoteMsg voteMsg, List<VoteMsg> voteMsgs) {
         String hash = voteMsg.getHash();
-        //如果我已经对该hash的commit投过票了，就不再继续
-        if (voteStateConcurrentHashMap.get(hash) != null) {
-            return;
-        }
-
         VoteMsg commitMsg = new VoteMsg();
         BeanUtil.copyProperties(voteMsg, commitMsg);
         commitMsg.setVoteType(VoteType.COMMIT);

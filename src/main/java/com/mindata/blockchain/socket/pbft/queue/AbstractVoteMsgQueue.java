@@ -47,7 +47,7 @@ public abstract class AbstractVoteMsgQueue extends BaseMsgQueue {
 
         //添加进去
         voteMsgs.add(voteMsg);
-        //如果我已经对该hash的commit投过票了，就不再继续
+        //如果已经对该hash投过票了，就不再继续
         if (voteStateConcurrentHashMap.get(hash) != null) {
             return;
         }

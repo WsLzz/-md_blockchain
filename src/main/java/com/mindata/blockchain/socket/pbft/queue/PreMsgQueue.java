@@ -15,6 +15,7 @@ import com.mindata.blockchain.block.Block;
 import com.mindata.blockchain.common.AppId;
 import com.mindata.blockchain.common.timer.TimerManager;
 import com.mindata.blockchain.core.event.AddBlockEvent;
+import com.mindata.blockchain.core.sqlite.SqliteManager;
 import com.mindata.blockchain.socket.pbft.VoteType;
 import com.mindata.blockchain.socket.pbft.event.MsgPrepareEvent;
 import com.mindata.blockchain.socket.pbft.msg.VoteMsg;
@@ -29,6 +30,8 @@ import cn.hutool.core.bean.BeanUtil;
  */
 @Component
 public class PreMsgQueue extends BaseMsgQueue {
+    @Resource
+    private SqliteManager sqliteManager;
     @Resource
     private PrepareMsgQueue prepareMsgQueue;
     @Resource
@@ -53,6 +56,18 @@ public class PreMsgQueue extends BaseMsgQueue {
             logger.info("拒绝进入Prepare阶段，hash为" + hash);
             return;
         }
+        // 检测脚本是否正常
+        try {
+			sqliteManager.tryExecute(votePreMsg.getBlock());
+		} catch (Exception e) {
+			if(!"00001".equals(e.getMessage())){
+				// 执行异常
+				return;
+			}else{
+				logger.info("指令预校验执行成功！");
+			}
+		}
+        
         //存入Pre集合中
         blockConcurrentHashMap.put(hash, votePreMsg);
 
@@ -61,7 +76,7 @@ public class PreMsgQueue extends BaseMsgQueue {
         BeanUtil.copyProperties(voteMsg, prepareMsg);
         prepareMsg.setVoteType(VoteType.PREPARE);
         prepareMsg.setAppId(AppId.value);
-        eventPublisher.publishEvent(new MsgPrepareEvent(voteMsg));
+        eventPublisher.publishEvent(new MsgPrepareEvent(prepareMsg));
     }
 
     /**
