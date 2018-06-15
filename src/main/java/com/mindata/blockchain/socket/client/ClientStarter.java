@@ -1,19 +1,19 @@
 package com.mindata.blockchain.socket.client;
 
-import com.mindata.blockchain.common.AppId;
-import com.mindata.blockchain.common.CommonUtil;
-import com.mindata.blockchain.core.bean.Member;
-import com.mindata.blockchain.core.bean.MemberData;
-import com.mindata.blockchain.core.bean.Permission;
-import com.mindata.blockchain.core.bean.PermissionData;
-import com.mindata.blockchain.core.manager.PermissionManager;
-import com.mindata.blockchain.socket.common.Const;
-import com.mindata.blockchain.socket.packet.BlockPacket;
-import com.mindata.blockchain.socket.packet.NextBlockPacketBuilder;
+import static com.mindata.blockchain.socket.common.Const.GROUP_NAME;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.locks.Lock;
+import java.util.stream.Collectors;
+
+import javax.annotation.Resource;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -26,14 +26,18 @@ import org.tio.core.ChannelContext;
 import org.tio.core.Node;
 import org.tio.utils.lock.SetWithLock;
 
-import javax.annotation.Resource;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.locks.Lock;
-import java.util.stream.Collectors;
-
-import static com.mindata.blockchain.socket.common.Const.GROUP_NAME;
+import com.google.common.collect.Maps;
+import com.mindata.blockchain.common.AppId;
+import com.mindata.blockchain.common.CommonUtil;
+import com.mindata.blockchain.core.bean.Member;
+import com.mindata.blockchain.core.bean.MemberData;
+import com.mindata.blockchain.core.bean.Permission;
+import com.mindata.blockchain.core.bean.PermissionData;
+import com.mindata.blockchain.core.event.NodesConnectedEvent;
+import com.mindata.blockchain.core.manager.PermissionManager;
+import com.mindata.blockchain.socket.common.Const;
+import com.mindata.blockchain.socket.packet.BlockPacket;
+import com.mindata.blockchain.socket.packet.NextBlockPacketBuilder;
 
 /**
  * @author wuweifeng wrote on 2018/3/18.
@@ -59,7 +63,11 @@ public class ClientStarter {
 
     private Logger logger = LoggerFactory.getLogger(getClass());
 
-    private static Set<Node> nodes = new HashSet<>();
+    private Set<Node> nodes = new HashSet<>();
+    
+    // 节点连接状态
+    private Map<String,Integer> nodesStatus = Maps.newConcurrentMap();
+    private volatile boolean isNodesReady = false; // 节点是否已准备好
 
     /**
      * 从麦达区块链管理端获取已登记的各服务器ip
@@ -129,14 +137,13 @@ public class ClientStarter {
      */
     @Scheduled(fixedRate = 30000)
     public void heartBeat() {
+    	if(!isNodesReady)return;
         logger.info("---------开始心跳包--------");
         BlockPacket blockPacket = NextBlockPacketBuilder.build();
         packetSender.sendGroup(blockPacket);
     }
 
-    @EventListener(ApplicationReadyEvent.class)
-    public void fetchNextBlock() throws InterruptedException {
-        Thread.sleep(6000);
+    public void onNodesReady() {
         logger.info("开始群发信息获取next Block");
         //在这里发请求，去获取group别人的新区块
         BlockPacket nextBlockPacket = NextBlockPacketBuilder.build();
@@ -181,21 +188,41 @@ public class ClientStarter {
         try {
             AioClient aioClient = new AioClient(clientGroupContext);
             logger.info("开始绑定" + ":" + serverNode.toString());
-            ClientChannelContext clientChannelContext = aioClient.connect(serverNode, 2);
-            if (clientChannelContext == null) {
-                logger.info("绑定" + serverNode.toString() + "失败");
-                return;
-            }
-            //绑group是将要连接的各个服务器节点做为一个group
-            Aio.bindGroup(clientChannelContext, GROUP_NAME);
+            aioClient.asynConnect(serverNode);
         } catch (Exception e) {
             logger.info("异常");
         }
     }
+    
+    @EventListener(NodesConnectedEvent.class)
+    public void onConnected(NodesConnectedEvent connectedEvent){
+    	ChannelContext channelContext = connectedEvent.getSource();
+    	Node node = channelContext.getServerNode();
+    	if (channelContext.isClosed()) {
+            logger.info("连接" + node.toString() + "失败");
+            nodesStatus.put(node.getIp(), -1);
+            return;
+        }else{
+        	logger.info("连接" + node.toString() + "成功");
+        	nodesStatus.put(node.getIp(), 1);
+        	//绑group是将要连接的各个服务器节点做为一个group
+        	Aio.bindGroup(channelContext, GROUP_NAME);
+
+        	int csize = Aio.getAllChannelContexts(clientGroupContext).size();
+        	if(csize >= pbftAgreeCount()){
+        		synchronized (nodesStatus) {
+        			if(!isNodesReady){
+        				isNodesReady = true;
+        				onNodesReady();
+        			}
+				}
+        	}
+        }
+    }
 
     public int halfGroupSize() {
-        SetWithLock setWithLock = clientGroupContext.groups.clients(clientGroupContext, Const.GROUP_NAME);
-        return ((Set) setWithLock.getObj()).size() / 2;
+        SetWithLock<ChannelContext> setWithLock = clientGroupContext.groups.clients(clientGroupContext, Const.GROUP_NAME);
+        return setWithLock.getObj().size() / 2;
     }
 
     /**

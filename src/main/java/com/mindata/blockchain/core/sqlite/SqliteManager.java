@@ -70,11 +70,13 @@ public class SqliteManager {
 
     /**
      * 根据一个block执行sql
-     *
+     * 整个block一个事务
+     * 
      * @param block
      *         block
      */
-    private void execute(Block block) {
+    @Transactional
+    public void execute(Block block) {
         List<Instruction> instructions = block.getBlockBody().getInstructions();
         //InstructionParserImpl类里面执行的是InstructionBase，需要转成InstructionBase
         for (Instruction instruction : instructions) {
