@@ -7,7 +7,8 @@ import org.tio.core.Aio;
 import org.tio.core.ChannelContext;
 import org.tio.core.intf.Packet;
 
-import static com.mindata.blockchain.socket.common.Const.GROUP_NAME;
+import com.mindata.blockchain.ApplicationContextProvider;
+import com.mindata.blockchain.core.event.NodesConnectedEvent;
 
 /**
  * client端对各个server连接的情况回调。</p>
@@ -20,12 +21,13 @@ public class BlockClientAioListener implements ClientAioListener {
 
     @Override
     public void onAfterConnected(ChannelContext channelContext, boolean isConnected, boolean isReconnect) throws Exception {
-        if (isConnected) {
-            logger.info("连接成功：server地址为-" + channelContext.getServerNode());
-            Aio.bindGroup(channelContext, GROUP_NAME);
-        } else {
-            logger.info("连接失败：server地址为-" + channelContext.getServerNode());
-        }
+//        if (isConnected) {
+//            logger.info("连接成功：server地址为-" + channelContext.getServerNode());
+//            Aio.bindGroup(channelContext, Const.GROUP_NAME);
+//        } else {
+//            logger.info("连接失败：server地址为-" + channelContext.getServerNode());
+//        }
+        ApplicationContextProvider.publishEvent(new NodesConnectedEvent(channelContext));
     }
 
     @Override
