@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.stream.Collectors;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 import org.slf4j.Logger;
@@ -68,6 +69,15 @@ public class ClientStarter {
     // 节点连接状态
     private Map<String,Integer> nodesStatus = Maps.newConcurrentMap();
     private volatile boolean isNodesReady = false; // 节点是否已准备好
+
+    /**
+     * 初始化权限信息
+     * 避免新联盟节点加入时，同步区块而权限未初始化导致同步异常
+     */
+    @PostConstruct
+    public void initPermission() {
+        fetchPermission();
+    }
 
     /**
      * 从麦达区块链管理端获取已登记的各服务器ip

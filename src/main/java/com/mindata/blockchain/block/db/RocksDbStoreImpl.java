@@ -34,7 +34,7 @@ public class RocksDbStoreImpl implements DbStore {
         try {
             byte[] bytes = rocksDB.get(key.getBytes(Const.CHARSET));
             if (bytes != null) {
-                return new String(bytes);
+                return new String(bytes, Const.CHARSET);
             }
             return null;
         } catch (Exception e) {
