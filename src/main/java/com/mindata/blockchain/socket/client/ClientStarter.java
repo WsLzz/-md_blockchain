@@ -56,7 +56,7 @@ public class ClientStarter {
     private String appId;
     @Value("${name}")
     private String name;
-    @Value("${singeNode:false}")
+    @Value("${singleNode:false}")
     private Boolean singeNode;
 
     private Logger logger = LoggerFactory.getLogger(getClass());
@@ -144,7 +144,9 @@ public class ClientStarter {
      */
     @Scheduled(fixedRate = 30000)
     public void heartBeat() {
-    	if(!isNodesReady)return;
+    	if(!isNodesReady) {
+    	    return;
+        }
         logger.info("---------开始心跳包--------");
         BlockPacket blockPacket = NextBlockPacketBuilder.build();
         packetSender.sendGroup(blockPacket);
