@@ -57,7 +57,7 @@ public class ClientStarter {
     @Value("${name}")
     private String name;
     @Value("${singleNode:false}")
-    private Boolean singeNode;
+    private Boolean singleNode;
 
     private Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -247,7 +247,7 @@ public class ClientStarter {
             pbft = 1;
         }
         //如果要单节点测试，此处返回值改为0
-        if(singeNode) {
+        if(singleNode) {
             return 0;
         }
         return pbft;
