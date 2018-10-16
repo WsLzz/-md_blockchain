@@ -75,7 +75,7 @@ public class SqliteManager {
      * @param block
      *         block
      */
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void execute(Block block) {
         List<Instruction> instructions = block.getBlockBody().getInstructions();
         //InstructionParserImpl类里面执行的是InstructionBase，需要转成InstructionBase
@@ -116,12 +116,10 @@ public class SqliteManager {
     /**
      * 测试block的代码是否能正确执行
      * 
-     * @param block
-     * @throws Exception msg=00001 则说明是正常执行
+     * @param block block
      */
     @Transactional(rollbackFor = Exception.class)
-    public void tryExecute(Block block) throws Exception{
+    public void tryExecute(Block block) {
     	execute(block);
-    	throw new Exception("00001");
     }
 }

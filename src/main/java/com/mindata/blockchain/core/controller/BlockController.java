@@ -1,16 +1,6 @@
 package com.mindata.blockchain.core.controller;
 
-import javax.annotation.Resource;
-
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
+import cn.hutool.core.collection.CollectionUtil;
 import com.mindata.blockchain.ApplicationContextProvider;
 import com.mindata.blockchain.block.Block;
 import com.mindata.blockchain.block.Instruction;
@@ -32,8 +22,12 @@ import com.mindata.blockchain.socket.client.PacketSender;
 import com.mindata.blockchain.socket.packet.BlockPacket;
 import com.mindata.blockchain.socket.packet.PacketBuilder;
 import com.mindata.blockchain.socket.packet.PacketType;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.web.bind.annotation.*;
 
-import cn.hutool.core.collection.CollectionUtil;
+import javax.annotation.Resource;
 
 /**
  * @author wuweifeng wrote on 2018/3/7.
@@ -103,9 +97,11 @@ public class BlockController {
      * @param content
      * sql内容
      */
-    @GetMapping("testUpdate")
-    public BaseData testUpdate(String id,String content) throws Exception {
-    	if(StringUtils.isBlank(id)) ResultGenerator.genSuccessResult("主键不可为空");
+    @GetMapping("update")
+    public BaseData testUpdate(String id, String content) throws Exception {
+    	if(StringUtils.isBlank(id)) {
+    	    return ResultGenerator.genSuccessResult("主键不可为空，Json不能为空");
+        }
     	InstructionBody instructionBody = new InstructionBody();
     	instructionBody.setOperation(Operation.UPDATE);
     	instructionBody.setTable("message");
@@ -128,15 +124,19 @@ public class BlockController {
     /**
      * 测试生成一个delete:Block，公钥私钥可以通过PairKeyController来生成
      * @param id 待删除记录的主键
-     * sql内容
+     * @param content 此处需要带上数据库中原本该记录的内容Json。原因是将来回滚时，delete对应的回滚操作需要将记录再add回来
+     * 
      */
-    @GetMapping("testDel")
-    public BaseData testDel(String id) throws Exception {
-    	if(StringUtils.isBlank(id)) ResultGenerator.genSuccessResult("主键不可为空");
+    @GetMapping("delete")
+    public BaseData testDel(String id, String content) throws Exception {
+    	if(StringUtils.isBlank(id) || StringUtils.isBlank(content)) {
+    	    return ResultGenerator.genSuccessResult("主键不可为空，Json不能为空");
+        }
     	InstructionBody instructionBody = new InstructionBody();
     	instructionBody.setOperation(Operation.DELETE);
     	instructionBody.setTable("message");
     	instructionBody.setInstructionId(id);
+        instructionBody.setJson("{\"content\":\"" + content + "\"}");
     	instructionBody.setPublicKey("A8WLqHTjcT/FQ2IWhIePNShUEcdCzu5dG+XrQU8OMu54");
     	instructionBody.setPrivateKey("yScdp6fNgUU+cRUTygvJG4EBhDKmOMRrK4XJ9mKVQJ8=");
     	Instruction instruction = instructionService.build(instructionBody);
@@ -194,7 +194,7 @@ public class BlockController {
      * null - 通过
      * hash - 第一个异常hash
      */
-    @GetMapping("checkb")
+    @GetMapping("checkDb")
     public BaseData checkAllBlock() {
     	
     	Block block = dbBlockManager.getFirstBlock();
