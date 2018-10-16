@@ -1,32 +1,5 @@
 package com.mindata.blockchain.socket.client;
 
-import static com.mindata.blockchain.socket.common.Const.GROUP_NAME;
-
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.locks.Lock;
-import java.util.stream.Collectors;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.event.EventListener;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
-import org.tio.client.AioClient;
-import org.tio.client.ClientChannelContext;
-import org.tio.client.ClientGroupContext;
-import org.tio.core.Aio;
-import org.tio.core.ChannelContext;
-import org.tio.core.Node;
-import org.tio.utils.lock.SetWithLock;
-
 import com.google.common.collect.Maps;
 import com.mindata.blockchain.common.AppId;
 import com.mindata.blockchain.common.CommonUtil;
@@ -39,6 +12,30 @@ import com.mindata.blockchain.core.manager.PermissionManager;
 import com.mindata.blockchain.socket.common.Const;
 import com.mindata.blockchain.socket.packet.BlockPacket;
 import com.mindata.blockchain.socket.packet.NextBlockPacketBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
+import org.tio.client.AioClient;
+import org.tio.client.ClientGroupContext;
+import org.tio.core.Aio;
+import org.tio.core.ChannelContext;
+import org.tio.core.Node;
+import org.tio.utils.lock.SetWithLock;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.locks.Lock;
+import java.util.stream.Collectors;
+
+import static com.mindata.blockchain.socket.common.Const.GROUP_NAME;
 
 /**
  * @author wuweifeng wrote on 2018/3/18.
@@ -248,7 +245,9 @@ public class ClientStarter {
             pbft = 1;
         }
         //如果要单节点测试，此处返回值改为0
-        if(singeNode) return 0;
+        if(singeNode) {
+            return 0;
+        }
         return pbft;
     }
 
