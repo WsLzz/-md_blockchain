@@ -23,4 +23,8 @@ public class MessageManager {
     public List<String> findAllContent() {
         return findAll().stream().map(MessageEntity::getContent).collect(Collectors.toList());
     }
+
+    public MessageEntity findById(String id) {
+        return messageRepository.findByMessageId(id);
+    }
 }
