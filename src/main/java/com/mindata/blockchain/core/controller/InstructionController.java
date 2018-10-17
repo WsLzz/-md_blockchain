@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.annotation.Resource;
 
@@ -15,6 +16,7 @@ import javax.annotation.Resource;
  * 区块body内单个指令的controller
  * @author wuweifeng wrote on 2018/3/7.
  */
+@ApiIgnore
 @RestController
 @RequestMapping("/instruction")
 public class InstructionController {

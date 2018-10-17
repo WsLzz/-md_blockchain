@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.mindata.blockchain</groupId>
@@ -23,8 +23,10 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>1.8</java.version>
 		<fastjson.version>1.2.29</fastjson.version>
+		<swagger.version>2.7.0</swagger.version>
+		<swagger.bootstrap.version>1.7</swagger.bootstrap.version>
 	</properties>
-	
+
 	<repositories>
 		<repository>
 			<id>ali-repos</id>
@@ -67,11 +69,11 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
 		</dependency>
-        <dependency>
-            <groupId>org.xerial</groupId>
-            <artifactId>sqlite-jdbc</artifactId>
-            <version>3.20.0</version>
-        </dependency>
+		<dependency>
+			<groupId>org.xerial</groupId>
+			<artifactId>sqlite-jdbc</artifactId>
+			<version>3.20.0</version>
+		</dependency>
 		<!-- 用于配置数据源 -->
 		<dependency>
 			<groupId>org.apache.commons</groupId>
@@ -84,14 +86,14 @@
 			<artifactId>tio-core</artifactId>
 			<version>2.2.0.v20180405-RELEASE</version>
 		</dependency>
-        <!--t-io end-->
-        <!--rocksdb start-->
+		<!--t-io end-->
+		<!--rocksdb start-->
 		<dependency>
 			<groupId>org.rocksdb</groupId>
 			<artifactId>rocksdbjni</artifactId>
 			<version>5.10.3</version>
 		</dependency>
-        <!--rocksdb end-->
+		<!--rocksdb end-->
 		<!--leveldb start-->
 		<dependency>
 			<groupId>org.iq80.leveldb</groupId>
@@ -104,18 +106,18 @@
 			<version>0.10</version>
 		</dependency>
 		<!--leveldb end-->
-        <!--disruptor begin-->
-        <dependency>
-            <groupId>com.lmax</groupId>
-            <artifactId>disruptor</artifactId>
-            <version>3.4.1</version>
-        </dependency>
-        <!--disruptor end-->
-        <dependency>
-            <groupId>com.madgag.spongycastle</groupId>
-            <artifactId>core</artifactId>
-            <version>1.54.0.0</version>
-        </dependency>
+		<!--disruptor begin-->
+		<dependency>
+			<groupId>com.lmax</groupId>
+			<artifactId>disruptor</artifactId>
+			<version>3.4.1</version>
+		</dependency>
+		<!--disruptor end-->
+		<dependency>
+			<groupId>com.madgag.spongycastle</groupId>
+			<artifactId>core</artifactId>
+			<version>1.54.0.0</version>
+		</dependency>
 		<dependency>
 			<groupId>org.bouncycastle</groupId>
 			<artifactId>bcprov-jdk15on</artifactId>
@@ -126,7 +128,23 @@
 			<artifactId>commons-codec</artifactId>
 			<version>1.10</version>
 		</dependency>
-		
+		<!-- swagger配置 -->
+		<dependency>
+			<groupId>io.springfox</groupId>
+			<artifactId>springfox-swagger2</artifactId>
+			<version>${swagger.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.springfox</groupId>
+			<artifactId>springfox-swagger-ui</artifactId>
+			<version>${swagger.version}</version>
+		</dependency>
+		<!-- swagger-ui-bootstrap -->
+		<dependency>
+			<groupId>com.github.xiaoymin</groupId>
+			<artifactId>swagger-bootstrap-ui</artifactId>
+			<version>${swagger.bootstrap.version}</version>
+		</dependency>
 	</dependencies>
 
 	<build>
