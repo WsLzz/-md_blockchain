@@ -249,36 +249,5 @@ public class BlockController {
         return ResultGenerator.genSuccessResult(block);
     }
 
-    /**
-     * 根据ID查询
-     * 区块链内容
-     * @param id
-     */
-    @ApiOperation(value = "根据编号查询完整信息", notes = "根据编号查询区块链中完整信息", httpMethod = "GET", response = BaseData.class)
-    @GetMapping("/find")
-    public BaseData find(@ApiParam(name = "id", value = "区块链信息编号", required = true)  @RequestParam(value = "id",required = true) String id) throws Exception {
-        if(StringUtils.isBlank(id)) ResultGenerator.genSuccessResult("主键不可为空");
-        InstructionBody instructionBody = new InstructionBody();
-        instructionBody.setOperation(Operation.UPDATE);
-        instructionBody.setTable("message");
-        instructionBody.setInstructionId(id);
-        MessageEntity message=messageManager.findById(id);
-        String content=ObjectUtils.isEmpty(message)?"":message.getContent();
-        instructionBody.setJson("{\"content\":\"" + content + "\"}");
-         /*instructionBody.setPublicKey("A8WLqHTjcT/FQ2IWhIePNShUEcdCzu5dG+XrQU8OMu54");
-        instructionBody.setPrivateKey("yScdp6fNgUU+cRUTygvJG4EBhDKmOMRrK4XJ9mKVQJ8=");*/
-        instructionBody.setPublicKey(publicKey);
-        instructionBody.setPrivateKey(privateKey);
-        Instruction instruction = instructionService.build(instructionBody);
-        BlockRequestBody blockRequestBody = new BlockRequestBody();
-        blockRequestBody.setPublicKey(instructionBody.getPublicKey());
-        com.mindata.blockchain.block.BlockBody blockBody = new com.mindata.blockchain.block.BlockBody();
-        blockBody.setInstructions(CollectionUtil.newArrayList(instruction));
-
-        blockRequestBody.setBlockBody(blockBody);
-
-        return ResultGenerator.genSuccessResult(blockService.addBlock(blockRequestBody));
-    }
-
 
 }
