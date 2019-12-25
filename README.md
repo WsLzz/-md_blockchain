@@ -1,5 +1,7 @@
 有研究微服务网关权限的，在网关zuul中对所有下游服务权限做控制，覆盖到所有接口，权限控制到角色、菜单、按钮、方法。基于zuul纯内存的方式，校验时性能无损耗。参考我另一个项目 https://gitee.com/tianyalei/zuulauth
 
+有对多线程并发调度框架感兴趣的，参考我另一个项目 https://gitee.com/tianyalei/asyncTool  该并发框架支持任意的多线程并行、串行、阻塞、依赖、回调，可以任意组合各线程的执行顺序，还带全链路回调。
+
 # md_blockchain
 Java区块链平台，基于Springboot开发的区块链平台。区块链qq交流群737858576，一起学习区块链平台开发，当然也交流Springboot、springcloud、机器学习等知识。
 ### 起因
