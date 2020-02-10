@@ -11,6 +11,7 @@ public class MdBlockchainApplicationTests {
 
 	@Test
 	public void contextLoads() {
+        //TODO 需要测试高并发下生成block的速度和冲突情况
 	}
 
 }
