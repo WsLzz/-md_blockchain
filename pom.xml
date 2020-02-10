@@ -9,7 +9,7 @@
 	<packaging>jar</packaging>
 
 	<name>md_blockchain</name>
-	<description>Demo project for Spring Boot</description>
+	<description>java blockchain based on Spring Boot</description>
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>
