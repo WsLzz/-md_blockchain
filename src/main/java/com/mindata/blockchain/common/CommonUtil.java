@@ -18,6 +18,9 @@ public class CommonUtil {
         System.out.println(inetAddress.getHostName());
     }
 
+    /**
+     * 获取本机ip地址
+     */
     public static String getLocalIp() {
         InetAddress inetAddress = getLocalHostLANAddress();
         if (inetAddress != null) {
