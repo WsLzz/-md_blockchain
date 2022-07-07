@@ -4,6 +4,8 @@
 
 有对多线程并行调度感兴趣的，参考另一个项目 https://gitee.com/jd-platform-opensource/asyncTool  该并发框架支持任意的多线程并行、串行、阻塞、依赖、回调，可以任意组合各线程的执行顺序，还带全链路回调。该项目在京东app后台正在试用，有海量用户、高并发等各种复杂极端场景。是作为Java程序员学习多线程的不可多得的好项目。
 
+有对热key探测功能有需求，毫秒级探测热点数据，毫秒级推送至服务器集群内存，大幅降低热key对数据层查询压力，高性能热key探测中间件hotkey，https://gitee.com/jd-platform-opensource/hotkey。
+
 # md_blockchain
 Java区块链平台，基于Springboot开发的区块链平台。区块链qq交流群737858576，一起学习区块链平台开发，当然也交流Springboot、springcloud、机器学习等知识。
 ### 起因
